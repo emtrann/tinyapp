@@ -4,6 +4,7 @@ const PORT = 8080; // default port 8080
 
 app.set("view engine", "ejs")
 
+
 function generateRandomString() {
   let availableChars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
   let shortURLString = ''; 
@@ -18,8 +19,12 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+const cookieParser = require('cookie-parser');
+app.use(cookieParser());
+
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
+
 
 // root page 
 app.get("/", (req, res) => {
@@ -37,13 +42,19 @@ app.get("/hello", (req, res) => {
 
 // list of shortened URLS - 
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase };
+  const templateVars = { 
+    urls: urlDatabase,
+    username: req.cookies["username"],
+  };
   res.render("url_index", templateVars);
 });
 
 // create new shortened URL
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  const templateVars = {
+    username: req.cookies["username"],
+  };
+  res.render("urls_new", templateVars);
 });
 
 // delete a URL 
@@ -54,7 +65,11 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
 // individual shortened URL on webpage 
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
+  const templateVars = { 
+    shortURL: req.params.shortURL, 
+    longURL: urlDatabase[req.params.shortURL],
+    username: req.cookies["username"],
+  };
   res.render("urls_show", templateVars);
 });
 
@@ -81,6 +96,18 @@ app.post("/urls", (req, res) => {
   urlDatabase[`${newShortUrl}`] = req.body.longURL;
   res.redirect(`/urls/${newShortUrl}`);
   console.log(urlDatabase);
+});
+
+// sets value to username cookie from login form
+app.post("/login", (req, res) => {
+  res.cookie('username', `${req.body.usernameInput}`);
+  res.redirect('/urls');
+});
+
+// clear username cookie
+app.post("/logout", (req, res) => {
+  res.clearCookie('username');
+  res.redirect('/urls');
 });
 
 // server answer when connected
