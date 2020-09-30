@@ -83,6 +83,12 @@ app.post("/urls", (req, res) => {
   console.log(urlDatabase);
 });
 
+// registration form
+app.get("/register", (req, res) => {
+  const templateVars = { username: req.params.username };
+  res.render("register", templateVars);
+});
+
 // server answer when connected
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
