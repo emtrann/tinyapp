@@ -1,10 +1,33 @@
+// Dependencies 
 const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
+const cookieParser = require('cookie-parser');
+const bodyParser = require("body-parser");
 
+// Template engine 
 app.set("view engine", "ejs")
 
+<<<<<<< HEAD
 
+=======
+// Use of dependencies 
+app.use(cookieParser());
+app.use(bodyParser.urlencoded({extended: true}));
+
+// Databases 
+const urlDatabase = {
+  "b2xVn2": "http://www.lighthouselabs.ca",
+  "9sm5xK": "http://www.google.com"
+};
+
+const users = {
+
+};
+
+// Helper functions ----------------------------------------------------
+// ID Generator 
+>>>>>>> feature/user-registration
 function generateRandomString() {
   let availableChars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
   let shortURLString = ''; 
@@ -12,18 +35,28 @@ function generateRandomString() {
     shortURLString += availableChars[Math.floor(Math.random() * 62)];
   }
   return shortURLString;
-}
-
-const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
 };
 
+// Look through user emails
+const findUserByEmail = (usersDb, email) => {
+  for (let user in users) {
+    const userObj = usersDb[user];
+    if (userObj.email === email) {
+      return userObj;
+    }
+  }
+  return false;
+};
+
+<<<<<<< HEAD
 const cookieParser = require('cookie-parser');
 app.use(cookieParser());
 
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
+=======
+// View (BR) ----------------------------------------------------
+>>>>>>> feature/user-registration
 
 
 // root page 
@@ -44,14 +77,19 @@ app.get("/hello", (req, res) => {
 app.get("/urls", (req, res) => {
   const templateVars = { 
     urls: urlDatabase,
+<<<<<<< HEAD
     username: req.cookies["username"],
+=======
+    user: users[req.cookies["user_id"]],
+>>>>>>> feature/user-registration
   };
   res.render("url_index", templateVars);
 });
 
-// create new shortened URL
+// page for new shortened URL
 app.get("/urls/new", (req, res) => {
   const templateVars = {
+<<<<<<< HEAD
     username: req.cookies["username"],
   };
   res.render("urls_new", templateVars);
@@ -61,6 +99,11 @@ app.get("/urls/new", (req, res) => {
 app.post("/urls/:shortURL/delete", (req, res) => {
   delete urlDatabase[req.params.shortURL];
   res.redirect('/urls')
+=======
+    user: users[req.cookies["user_id"]],
+  };
+  res.render("urls_new", templateVars);
+>>>>>>> feature/user-registration
 });
 
 // individual shortened URL on webpage 
@@ -68,7 +111,11 @@ app.get("/urls/:shortURL", (req, res) => {
   const templateVars = { 
     shortURL: req.params.shortURL, 
     longURL: urlDatabase[req.params.shortURL],
+<<<<<<< HEAD
     username: req.cookies["username"],
+=======
+    user: users[req.cookies["user_id"]],
+>>>>>>> feature/user-registration
   };
   res.render("urls_show", templateVars);
 });
@@ -76,9 +123,30 @@ app.get("/urls/:shortURL", (req, res) => {
 // redirects webpage to long URL 
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL];
-  console.log(longURL)
   res.redirect(longURL);
-  console.log(longURL)
+});
+
+// registration form
+app.get("/register", (req, res) => {
+  const templateVars = { user: null };
+  res.render("register", templateVars);
+});
+
+// login form
+app.get("/login", (req, res) => {
+  const templateVars = { 
+    user: users[req.cookies["user_id"]],
+  };
+  res.render("login", templateVars);
+});
+
+
+// Action (EAD) -----------------------------------------
+
+// delete a URL 
+app.post("/urls/:shortURL/delete", (req, res) => {
+  delete urlDatabase[req.params.shortURL];
+  res.redirect('/urls')
 });
 
 // edits the longURL using form intake
@@ -98,6 +166,7 @@ app.post("/urls", (req, res) => {
   console.log(urlDatabase);
 });
 
+<<<<<<< HEAD
 // sets value to username cookie from login form
 app.post("/login", (req, res) => {
   res.cookie('username', `${req.body.usernameInput}`);
@@ -110,6 +179,49 @@ app.post("/logout", (req, res) => {
   res.redirect('/urls');
 });
 
+=======
+// sets value to user_id cookie from login form
+app.post("/login", (req, res) => {
+  const { email, password } = req.body;
+  let user = findUserByEmail(users, email)
+
+  if (!user) {
+    res.status(403).json({message: 'Email cannot be found'});
+  } else if (user && (user['password'] !== password)) {
+    res.status(403).json({message: 'Password is incorrect'});
+  } else {
+    res.cookie('user_id', `${user['userId']}`);
+    res.redirect('/urls');
+  }
+});
+
+// clear user_id cookie
+app.post("/logout", (req, res) => {
+  res.clearCookie('user_id');
+  res.redirect('/urls');
+});
+
+// adds registration form info to user database
+app.post("/register", (req, res) => {
+  const { email, password } = req.body;
+  if (email === "" || password === "") {
+    res.status(400).json({message: 'No email/password provided'});
+  } else if (findUserByEmail(users, email) !== false) {
+    res.status(400).json({message: 'Email already exists'});
+    return;
+  } else {
+    const userId = generateRandomString();
+    res.cookie('user_id', `${userId}`);
+    users[`${userId}`] = {
+      userId, 
+      email,
+      password
+    }
+  }
+  res.redirect('/urls')
+});
+
+>>>>>>> feature/user-registration
 // server answer when connected
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
