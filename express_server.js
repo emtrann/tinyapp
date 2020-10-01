@@ -4,6 +4,7 @@ const app = express();
 const PORT = 8080; // default port 8080
 const cookieParser = require('cookie-parser');
 const bodyParser = require("body-parser");
+const bcrypt = require('bcrypt');
 
 // Template engine 
 app.set("view engine", "ejs")
@@ -55,7 +56,7 @@ const urlsForUser = (urlsDb, id) => {
   return filteredUrls;
 };
 
-// View (BR) ----------------------------------------------------
+// View (Browse, Read) ----------------------------------------------------
 
 
 // root page 
@@ -74,14 +75,14 @@ app.get("/hello", (req, res) => {
 
 // list of shortened URLS pertaining to user signed in ---- 
 app.get("/urls/:id", (req, res) => {
+  let templateVars = { 
+    user: users[req.cookies["user_id"]],
+  }
   if (users[req.cookies["user_id"]] === undefined) {
-    res.redirect("/login");
+    res.render("url_index", templateVars);
   } else {
     let idSpecificURLDatabase = urlsForUser(urlDatabase, users[req.cookies["user_id"]]["userId"]); 
-    const templateVars = { 
-      urls: idSpecificURLDatabase,
-      user: users[req.cookies["user_id"]],
-    };
+    templateVars['urls'] = idSpecificURLDatabase;
     res.render("url_index", templateVars);
   }
 });
@@ -130,7 +131,7 @@ app.get("/login", (req, res) => {
 });
 
 
-// Action (EAD) -----------------------------------------
+// Action (Edit, Add, Delete) -----------------------------------------
 
 // delete a URL 
 app.post("/urls/:id/:shortURL/delete", (req, res) => {
@@ -164,11 +165,18 @@ app.post("/login", (req, res) => {
 
   if (!user) {
     res.status(403).json({message: 'Email cannot be found'});
-  } else if (user && (user['password'] !== password)) {
-    res.status(403).json({message: 'Password is incorrect'});
+  } else if (user) {
+    bcrypt.compare(password, user.password, function(err, isPasswordMatched) {
+      if(isPasswordMatched) {
+        res.cookie('user_id', `${user['userId']}`);
+        res.redirect('/urls/:id');
+      } else {
+        res.render('login', { error: 'Incorrect Password', user: user})
+      }
+    })
   } else {
-    res.cookie('user_id', `${user['userId']}`);
-    res.redirect('/urls');
+    res.status(403);
+    res.render('login', { error: 'No account under this user. Register instead?'})
   }
 });
 
@@ -189,11 +197,13 @@ app.post("/register", (req, res) => {
   } else {
     const userId = generateRandomString();
     res.cookie('user_id', `${userId}`);
-    users[`${userId}`] = {
-      userId, 
-      email,
-      password
-    }
+    bcrypt.hash(password, 5, function(err, hashedPassword) {
+      users[`${userId}`] = {
+        userId, 
+        email,
+        password: hashedPassword,
+      }
+    });
   }
   res.redirect('/urls/:id')
 });
