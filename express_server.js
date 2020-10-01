@@ -8,9 +8,6 @@ const bodyParser = require("body-parser");
 // Template engine 
 app.set("view engine", "ejs")
 
-<<<<<<< HEAD
-
-=======
 // Use of dependencies 
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({extended: true}));
@@ -27,7 +24,6 @@ const users = {
 
 // Helper functions ----------------------------------------------------
 // ID Generator 
->>>>>>> feature/user-registration
 function generateRandomString() {
   let availableChars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
   let shortURLString = ''; 
@@ -48,15 +44,7 @@ const findUserByEmail = (usersDb, email) => {
   return false;
 };
 
-<<<<<<< HEAD
-const cookieParser = require('cookie-parser');
-app.use(cookieParser());
-
-const bodyParser = require("body-parser");
-app.use(bodyParser.urlencoded({extended: true}));
-=======
 // View (BR) ----------------------------------------------------
->>>>>>> feature/user-registration
 
 
 // root page 
@@ -77,11 +65,7 @@ app.get("/hello", (req, res) => {
 app.get("/urls", (req, res) => {
   const templateVars = { 
     urls: urlDatabase,
-<<<<<<< HEAD
-    username: req.cookies["username"],
-=======
     user: users[req.cookies["user_id"]],
->>>>>>> feature/user-registration
   };
   res.render("url_index", templateVars);
 });
@@ -89,21 +73,9 @@ app.get("/urls", (req, res) => {
 // page for new shortened URL
 app.get("/urls/new", (req, res) => {
   const templateVars = {
-<<<<<<< HEAD
-    username: req.cookies["username"],
-  };
-  res.render("urls_new", templateVars);
-});
-
-// delete a URL 
-app.post("/urls/:shortURL/delete", (req, res) => {
-  delete urlDatabase[req.params.shortURL];
-  res.redirect('/urls')
-=======
     user: users[req.cookies["user_id"]],
   };
   res.render("urls_new", templateVars);
->>>>>>> feature/user-registration
 });
 
 // individual shortened URL on webpage 
@@ -111,11 +83,7 @@ app.get("/urls/:shortURL", (req, res) => {
   const templateVars = { 
     shortURL: req.params.shortURL, 
     longURL: urlDatabase[req.params.shortURL],
-<<<<<<< HEAD
-    username: req.cookies["username"],
-=======
     user: users[req.cookies["user_id"]],
->>>>>>> feature/user-registration
   };
   res.render("urls_show", templateVars);
 });
@@ -166,20 +134,6 @@ app.post("/urls", (req, res) => {
   console.log(urlDatabase);
 });
 
-<<<<<<< HEAD
-// sets value to username cookie from login form
-app.post("/login", (req, res) => {
-  res.cookie('username', `${req.body.usernameInput}`);
-  res.redirect('/urls');
-});
-
-// clear username cookie
-app.post("/logout", (req, res) => {
-  res.clearCookie('username');
-  res.redirect('/urls');
-});
-
-=======
 // sets value to user_id cookie from login form
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
@@ -221,7 +175,6 @@ app.post("/register", (req, res) => {
   res.redirect('/urls')
 });
 
->>>>>>> feature/user-registration
 // server answer when connected
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
