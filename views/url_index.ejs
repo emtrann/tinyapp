@@ -17,7 +17,7 @@
     <h3>My URLs</h3>
 
     <% if (!user) { %>
-      <h5>Please sign in to view your URLs!</h5>
+      <h3>Please sign in to view your URLs!</h3>
       <% } else { %>
     <table class="table">
       <thead>
@@ -35,10 +35,10 @@
             <td><%= url %></td>
             <td><%= urls[url]['longURL'] %></td>
             <td>
-              <a href="/urls/:id/<%= url%>" class="btn btb-outline-danger">Edit</a>
+              <a href="/urls/<%= url%>" class="btn btb-outline-danger">Edit</a>
             </td>
            
-            <td><form method="POST" action="/urls/:id/<%= url%>/delete">
+            <td><form method="POST" action="/urls/<%= url%>/delete">
               <button action="submit" class="btn btn-outline-danger">Delete</button></td>
             </form>
           </tr>
