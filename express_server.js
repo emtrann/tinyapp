@@ -131,7 +131,6 @@ app.post("/urls", (req, res) => {
   let newShortUrl = generateRandomString();
   urlDatabase[`${newShortUrl}`] = req.body.longURL;
   res.redirect(`/urls/${newShortUrl}`);
-  console.log(urlDatabase);
 });
 
 // sets value to user_id cookie from login form
