@@ -13,7 +13,7 @@ app.use(cookieParser());
 app.use(bodyParser.urlencoded({extended: true}));
 
 // Databases 
-const urlDatabase = {
+let urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
@@ -63,6 +63,7 @@ app.get("/hello", (req, res) => {
 
 // list of shortened URLS - 
 app.get("/urls", (req, res) => {
+    
   const templateVars = { 
     urls: urlDatabase,
     user: users[req.cookies["user_id"]],
@@ -80,11 +81,15 @@ app.get("/urls/new", (req, res) => {
 
 // individual shortened URL on webpage 
 app.get("/urls/:shortURL", (req, res) => {
+    console.log("shorturl", req.params.shortURL);
+    console.log("Another test", urlDatabase);
   const templateVars = { 
     shortURL: req.params.shortURL, 
     longURL: urlDatabase[req.params.shortURL],
     user: users[req.cookies["user_id"]],
   };
+  console.log("Rohit TEst", templateVars);
+  //console.log(req.params); 
   res.render("urls_show", templateVars);
 });
 
@@ -118,12 +123,12 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 });
 
 // edits the longURL using form intake
-app.post("/urls/:id", (req, res) => {
+app.post("/urls/update/:id", (req, res) => {
   const updatedURL = req.body.longURL;
-  const shortURLId = req.params.id;
+  const shortURL = req.params.id;
 
-  urlDatabase[shortURLId] = updatedURL;
-  res.redirect(`/urls/${shortURLId}`)
+  urlDatabase[shortURL] = updatedURL;
+  res.redirect(`/urls/${shortURL}`)
 })
 
 // generates string for url key + adds to URLdatabase
