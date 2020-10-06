@@ -96,7 +96,13 @@ app.get("/urls/:shortURL", (req, res) => {
     longURL: urlDatabase[req.params.shortURL]["longURL"],
     user: users[req.session.user_id],
   };
+  if (users[req.session.user_id] === undefined) {
+    res.redirect("/login");
+  } else if (users[req.session['user_id']]['userId'] !== urlDatabase[req.params.shortURL]["userID"]) {
+    res.status(401).json({message: "This URL is not listed under your account - please try again"});
+  } else {
   res.render("urls_show", templateVars);
+  }
 });
 
 // redirects webpage to long URL
